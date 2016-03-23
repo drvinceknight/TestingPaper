@@ -6,13 +6,7 @@ before_install:
   - export PATH=/home/travis/miniconda2/bin:$PATH
   - sudo apt-get -qq update
   - sudo apt-get -qq -y install pandoc
-  - sudo apt-get -qq -y --no-install-recommends install \
-  texlive-{base,bibtex-extra,extra-utils,generic-recommended, \
-  fonts-recommended,font-utils,latex-base,latex-recommended, \
-  latex-extra,math-extra,pictures,pstricks,science} \
-  perl-tk purifyeps chktex latexmk dvipng xindy dvidvi \
-  fragmaster lacheck latexdiff libfile-which-perl dot2tex \
-  tipa latex-xcolor latex-beamer prosper pgf
+  - sudo apt-get -qq -y --no-install-recommends install texlive-{base,bibtex-extra,extra-utils,generic-recommended, fonts-recommended,font-utils,latex-base,latex-recommended, latex-extra,math-extra,pictures,pstricks,science} perl-tk purifyeps chktex latexmk dvipng xindy dvidvi fragmaster lacheck latexdiff libfile-which-perl dot2tex tipa latex-xcolor latex-beamer prosper pgf
 
 # install jupyter, needed for converting the notebooks, and pandoc
 install:
