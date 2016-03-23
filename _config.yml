@@ -20,7 +20,7 @@ exclude:
 tag_text: Testing paper
 description: A review of quality assurance practices in computational research
 url: "http://127.0.0.1:4000"
-baseurl: "TestingPaper"
+baseurl: "/TestingPaper"
 
 font-awesome-include: true # make this false if you don't need font-awesome
 
