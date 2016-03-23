@@ -11,9 +11,12 @@ before_install:
 
 # install jupyter, needed for converting the notebooks, and pandoc
 install:
-  - conda create -q -y -n build-pages python=3 jupyter
+  - conda create -q -y -n build-pages python=3 jupyter numpy matplotlib
   - source activate build-pages
   - pip install -r requirements.txt
+  - git clone https://github.com/jakevdp/JSAnimation.git
+  - cd JSAnimation && pip install .
+  - cd ..
 
   # run the build script
 script: bash ./build-pages.sh
