@@ -14,7 +14,7 @@ before_install:
 install:
   - conda create -q -y -n build-pages python=3 jupyter
   - source activate build-pages
-  - pip install requirements.txt
+  - pip install -r requirements.txt
 
   # run the build script
 script: bash ./build-pages.sh
