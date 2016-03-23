@@ -10,7 +10,7 @@ default: testing.pdf
 	jupyter nbconvert --to html  --template jekyll.tpl --stdout $< > $@
 
 %.nbconvert.ipynb: %.ipynb
-	jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=120 --execute --stdout $< > $@
+	jupyter nbconvert --to notebook --allow-errors --ExecutePreprocessor.timeout=120 --execute --stdout $< > $@
 
 testing.pdf: combined.ipynb Makefile latex.tplx
 	jupyter nbconvert --to pdf --template latex.tplx $<
@@ -23,12 +23,9 @@ testing.tex: combined.ipynb Makefile
 	jupyter nbconvert --to latex --template latex.tplx $<
 	mv combined.tex testing.tex
 
-ready: $(HTMLS) testing.pdf
+site: $(HTMLS) testing.pdf
 
 .PHONY: ready
-
-site: ready
-	jekyll build --verbose
 
 preview: ready
 	jekyll serve --verbose
