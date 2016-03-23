@@ -8,6 +8,7 @@ before_install:
   - ./miniconda.sh -b
   - export PATH=/home/travis/miniconda2/bin:$PATH
   - sudo apt-get -qq update
+  - tlmgr install cfr-lm
 
 # install jupyter, needed for converting the notebooks, and pandoc
 install:
