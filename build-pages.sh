@@ -19,6 +19,7 @@ git config user.email "O.Laslett@soton.ac.uk"
 
 # add the output for pushing to git pages
 git add -f *.html
+git add -f *.pdf
 git commit -m "deploy output to Github pages"
 
 # now we push to the remote
