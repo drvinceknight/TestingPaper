@@ -13,6 +13,7 @@ rm -rf _site
 make site # may need changing
 
 # init a new repo for pushing to the pages
+git checkout -b gh-pages
 git config user.name "Travis CI"
 git config user.email "O.Laslett@soton.ac.uk"
 
@@ -22,4 +23,4 @@ git commit -m "deploy output to Github pages"
 
 # now we push to the remote
 # directing to null hides sensitive info
-git push --force --quiet "https://${GITHUB_TOKEN}@${GH_REF}" master:gh-pages &> /dev/null
+git push --force --quiet "https://${GITHUB_TOKEN}@${GH_REF}" gh-pages > /dev/null
