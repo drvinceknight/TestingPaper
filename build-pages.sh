@@ -23,4 +23,4 @@ git commit -m "deploy output to Github pages"
 
 # now we push to the remote
 # directing to null hides sensitive info
-git push --force --quiet "https://${GITHUB_TOKEN}@${GH_REF}" gh-pages > /dev/null
+git push --force --quiet "https://${GITHUB_TOKEN}@${GH_REF}" gh-pages &> /dev/null
