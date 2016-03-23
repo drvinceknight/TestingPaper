@@ -1,6 +1,12 @@
-..TestingPaper.ipynb.syncdoc4.sage-history
-.LICENSE.sage-chat
-.LICENSE.sage-history
-.TestingPaper.ipynb.syncdoc4
+*.ipynb.syncdoc4.sage-history
+*sage-chat
+*.sage-history
+*.ipynb.syncdoc4
 .gitignore.swp
 .ipynb_checkpoints/
+_site
+*.nbconvert.ipynb
+combined.ipynb
+testing.pdf
+TestingPaper.html
+index.html
