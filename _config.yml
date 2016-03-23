@@ -1,0 +1,28 @@
+
+title: "A review of quality assurance practices in computational research"
+
+defaults:
+  - scope: {path: ""}
+    values: {layout: default}
+
+markdown: redcarpet
+redcarpet:
+  extensions: ["strikethrough", "tables"]
+
+include: [ _static, _sources]
+exclude:
+  - "*.nbconvert.ipynb"
+  - "combined.ipynb"
+  - "*.tpl"
+  - "*.tplx"
+  - Makefile
+  - LICENSE
+
+tag_text: Testing paper
+description: A review of quality assurance practices in computational research
+url: "http://127.0.0.1:4000"
+
+font-awesome-include: true # make this false if you don't need font-awesome
+
+# Build settings
+markdown: kramdown

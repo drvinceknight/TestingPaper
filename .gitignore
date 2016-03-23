@@ -4,3 +4,9 @@
 *.ipynb.syncdoc4
 .gitignore.swp
 .ipynb_checkpoints/
+_site
+*.nbconvert.ipynb
+combined.ipynb
+testing.pdf
+TestingPaper.html
+index.html
