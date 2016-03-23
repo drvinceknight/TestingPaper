@@ -16,8 +16,8 @@
 ((* block packages *))
 ((( super() )))
 
-\usepackage{lettrine} % Package to accentuate the first letter of the text
-\usepackage{fix-cm}	 % Custom font sizes - used for the initial letter in the document
+%\usepackage{lettrine} % Package to accentuate the first letter of the text
+%\usepackage{fix-cm}	 % Custom font sizes - used for the initial letter in the document
 \usepackage{sectsty} % Enables custom section titles
 \usepackage{titling} % Allows custom title configuration
 \usepackage{picture}
@@ -32,10 +32,10 @@
 
 ((( super() )))
 
-\newcommand{\initial}[1]{ % Defines the command and style for the first letter
-\lettrine[lines=3,lhang=0.3,nindent=0em]{
-\color{DarkGreen}
-{\textsf{#1}}}{}}
+% \newcommand{\initial}[1]{ % Defines the command and style for the first letter
+% \lettrine[lines=3,lhang=0.3,nindent=0em]{
+% \color{DarkGreen}
+% {\textsf{#1}}}{}}
 
 \newcommand{\HorRule}{\color{DarkSeaGreen} \rule{\linewidth}{1pt}} % Defines the gold horizontal rule around the title
 
