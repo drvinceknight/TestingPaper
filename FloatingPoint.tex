@@ -2,7 +2,7 @@
 Nearly all computational research is done using the floating-point arithmetic supplied by the vendor. These days this is normally assumed to conform to the IEEE (binary) floating point system \cite{IEEE2008}, which specifies the results of a sequence of floating-point operations. This actually \emph{does} simplify the developers' life (compared to the days of negotiating hexadecimal-based IBM formats etc.), but does \emph{not} mean that there are no problems with the floating point. 
 
 \begin{enumerate}
-\item Floating-pont may not produce the results the na\"\i{}ve expect:
+\item Floating-point may not produce the results the na\"\i{}ve expect:
 \begin{equation}\label{eq:plus1}
 \left(1+10^{20}\right)-10^{20}=10^{20}-10^{20}=0,
 \end{equation}
@@ -10,9 +10,19 @@ not the $1$ one might expect. Of course,
 \begin{equation}\label{eq:plus2}
 1+\left(10^{20}-10^{20}\right)=1+0=1.
 \end{equation}
-\item \cite{IEEE2008} does specify the result of a sequence of floating-point operations, but the user may not! In particular, in most programming languages, 
+\item \cite{IEEE2008} does specify the result of a sequence of floating-point operations, but the user may not fully specify the sequence! In particular, in most programming languages, 
 \begin{equation}\label{eq:plus3}
 1+10^{20}-10^{20}
 \end{equation}
 is ambiguous as to whether it is (\ref{eq:plus1}) or  (\ref{eq:plus2}), and therefore the compiler is free to produce 1 or 0. In practice, of course, the code will not be (\ref{eq:plus3}) but \verb!a+b+c!, and indeed \verb!a! etc. will probably be array elements, or expressions themselves. A slight change in \verb!a! etc., or indeed in the surrounding program, can change which order the compiler chooses to do the additions in, and, as we have seen, change the result.
+\par
+This ambiguity is multiplied if our language allows us to write vector or array operations, or if we use parallel operations like MPIs' \verb+Reduce+\footnote{See section \ref{test:parallel}.}.
+\end{enumerate}
+This means that it is futile to expect a program to be as deterministic as we would na\"\i{}vely expect. Even a recompilation of an untouched source program can arrange operations differently, and re-running an untouched parallel program can perform additions in a different order. Hence exact reproducibility is impossible, and there isn't necessarily a ``right answer''.
+\begin{quote}
+So how do I tell the difference between such legitimate variations and a bug?
+\end{quote}
+This is the key question, and the worrying answer is that only an expert can truly know. However, we can give some suggestions.
+\begin{enumerate}
+\item Consider \emph{relative errors} rather than absolute ones, i.e., rather than asking whether $|a-b|$ is small, ask whether $\frac{|a-b|}{\max(|a|,|b|)}$ is small.
 \end{enumerate}
