@@ -10,7 +10,7 @@ default: testing.pdf
 	jupyter nbconvert --to html  --template jekyll.tpl --stdout $< > $@
 
 %.nbconvert.ipynb: %.ipynb
-	jupyter nbconvert --to notebook --allow_errors=True --ExecutePreprocessor.timeout=120 --execute --stdout $< > $@
+	jupyter nbconvert --to notebook --allow-errors --ExecutePreprocessor.timeout=120 --execute --stdout $< > $@
 
 testing.pdf: combined.ipynb Makefile latex.tplx
 	jupyter nbconvert --to pdf --template latex.tplx $<
