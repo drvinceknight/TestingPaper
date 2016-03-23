@@ -1,4 +1,19 @@
+# command to install miniconda
+before_install:
+  - wget http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda2/bin:$PATH
+
+# install jupyter, needed for converting the notebooks
+install:
+  - conda create -q -y -n build-pages jupyter
+  - source activate build-pages
+
+  # run the build script
 script: bash ./build-pages.sh
+
+# setup the environment
 env:
   global:
     - GH_REF: github.com/drvinceknight/TestingPaper.git
