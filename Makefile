@@ -1,8 +1,8 @@
-NOTEBOOKS=$(filter-out index.ipynb combined.ipynb %.nbconvert.ipynb,$(wildcard *.ipynb))
+NOTEBOOKS=$(filter-out combined.ipynb %.nbconvert.ipynb,$(wildcard *.ipynb))
 
 HTMLS=$(NOTEBOOKS:.ipynb=.html)
 
-EXECUTED=$(NOTEBOOKS:.ipynb=.nbconvert.ipynb)
+EXECUTED=$(filter-out index.ipynb,$(NOTEBOOKS:.ipynb=.nbconvert.ipynb))
 
 default: testing.pdf
 
