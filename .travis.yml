@@ -8,6 +8,7 @@ before_install:
   - ./miniconda.sh -b
   - export PATH=/home/travis/miniconda2/bin:$PATH
   - sudo apt-get -qq update
+  - sudo apt-get -qq -y ruby
   - tlmgr install cfr-lm framed libertine mweights fontaxes
 
 # install jupyter, needed for converting the notebooks, and pandoc
