@@ -1,4 +1,4 @@
-NOTEBOOKS=$(filter-out combined.ipynb %.nbconvert.ipynb,$(wildcard *.ipynb))
+NOTEBOOKS=$(filter-out index.ipynb combined.ipynb %.nbconvert.ipynb,$(wildcard *.ipynb))
 
 HTMLS=$(NOTEBOOKS:.ipynb=.html)
 
