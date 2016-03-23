@@ -23,12 +23,9 @@ testing.tex: combined.ipynb Makefile
 	jupyter nbconvert --to latex --template latex.tplx $<
 	mv combined.tex testing.tex
 
-ready: $(HTMLS) testing.pdf
+site: $(HTMLS) testing.pdf
 
 .PHONY: ready
-
-site: ready
-	jekyll build --verbose
 
 preview: ready
 	jekyll serve --verbose
