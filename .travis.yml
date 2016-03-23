@@ -12,7 +12,7 @@ before_install:
 
 # install jupyter, needed for converting the notebooks, and pandoc
 install:
-  - conda create -q -y -n build-pages jupyter
+  - conda create -q -y -n build-pages python=3 jupyter
   - source activate build-pages
 
   # run the build script
