@@ -8,6 +8,7 @@ before_install:
   - ./miniconda.sh -b
   - export PATH=/home/travis/miniconda2/bin:$PATH
   - sudo apt-get -qq update
+  - sudo apt-get -qq -y ruby
   - tlmgr install cfr-lm framed libertine mweights fontaxes
 
 # install jupyter, needed for converting the notebooks, and pandoc
@@ -15,6 +16,7 @@ install:
   - conda create -q -y -n build-pages python=3 jupyter
   - source activate build-pages
   - pip install -r requirements.txt
+  - gem install jekyll
 
   # run the build script
 script: bash ./build-pages.sh
