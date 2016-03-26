@@ -89,7 +89,8 @@ year = {2008}
 }
 @article{Yang2006,
 abstract = {Storage systems such as file systems, databases, and RAID systems have a simple, basic contract: you give them data, they do not lose or corrupt it. Often they store the only copy, making its irrevocable loss almost arbitrarily bad. Unfortunately, their code is exceptionally hard to get right, since it must correctly recover from any crash at any program point, no matter how their state was smeared across volatile and persistent memory.$\backslash$n$\backslash$nThis paper describes EXPLODE, a system that makes it easy to systematically check real storage systems for errors. It takes user-written, potentially system-specific checkers and uses them to drive a storage system into tricky corner cases, including crash recovery errors. EXPLODE uses a novel adaptation of ideas from model checking, a comprehensive, heavy-weight formal verification technique, that makes its checking more systematic (and hopefully more effective) than a pure testing approach while being just as lightweight.$\backslash$n$\backslash$nEXPLODE is effective. It found serious bugs in a broad range of real storage systems (without requiring source code): three version control systems, Berkeley DB, an NFS implementation, ten file systems, a RAID system, and the popular VMware GSX virtual machine. We found bugs in every system we checked, 36 bugs in total, typically with little effort.},
-author = {Yang, Junfeng and Sar, Can and Engler, Dawson},
+
+@author = {Yang, Junfeng and Sar, Can and Engler, Dawson},
 file = {:Users/vince/Dropbox/Mendeley/2006/2006 - Yang, Sar, Engler - eXplode a Lightweight, General System for Finding Serious Storage System Errors.pdf:pdf},
 isbn = {1-931971-47-1},
 journal = {Osdi '06},
@@ -97,6 +98,17 @@ pages = {131--146},
 title = {{eXplode: a Lightweight, General System for Finding Serious Storage System Errors}},
 year = {2006}
 }
+
+@Article{ Zhuetal1997,
+  title = "{Software unit test coverage and adequacy}",
+  author = {Zhu,H. and Hall,P.A. and May,J.H.},
+  journal = {ACM Computing Surveys}.
+  pages = {366-427},
+  volume = {29},
+  year = {1997},
+  keywords = {REF}
+}
+
 @article{Arts2008,
 abstract = {When creating software, data types are the basic bricks. Most of the time a programmer will use data types defined in library modules, therefore being tested by many users over many years. But sometimes, the appropriate data type is unavailable in the libraries and has to be constructed from scratch. In this way, new basic bricks are created, and potentially used in many products in the future. It pays off to test such data types thoroughly. This {\%} paper presents a structured methodology to follow when testing data types using Quviq QuickCheck, a tool for random testing against specifications. The validation process will be explained carefully, from the convenience of defining a model for the data type to be tested, to a strategy for better shrinking of failing test cases, and including the benefits of working with {\%} symbolic representations. The leading example in this paper is a data type implemented for a risk management information system, a commercial product developed in Erlang, that has been used on a daily basis for several years.},
 author = {Arts, Thomas and Castro, Laura M and Hughes, John},
