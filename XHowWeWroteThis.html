@@ -1,0 +1,71 @@
+---
+title: 
+---
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Technical-details-of-how-this-collaborative-paper-was-written">Technical details of how this collaborative paper was written<a class="anchor-link" href="#Technical-details-of-how-this-collaborative-paper-was-written">&#182;</a></h1><h2 id="Jupyter-Notebooks">Jupyter Notebooks<a class="anchor-link" href="#Jupyter-Notebooks">&#182;</a></h2><p>The paper is written in a Jupyter notebook and then <strong>magic happens</strong> to render it. (James H to add details).</p>
+<h2 id="Version-control-of-the-Jupyter-Notebook">Version control of the Jupyter Notebook<a class="anchor-link" href="#Version-control-of-the-Jupyter-Notebook">&#182;</a></h2><p>We tried using <a href="cloud.sagemath.com">Cloud.sagemath</a> to work collaboratively in real time on the notebook. All commits for the notebook are done on cloud.sagemath: they are in effect being done by a single user but multiple authors using:</p>
+
+<pre><code>$ git commit --author="XXX..."</code></pre>
+<p>Some issues, there are other options</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Continuous-deployment">Continuous deployment<a class="anchor-link" href="#Continuous-deployment">&#182;</a></h2><p>Inside Travis on every push:</p>
+<ul>
+<li>execute the notebooks (check for failures)</li>
+<li>nbconvert for pdf and html</li>
+<li>jekyll to build site</li>
+<li>pushes to gh-pages</li>
+</ul>
+<p>Most recent available to all, open source, creative commons</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Structure-your-repository">Structure your repository<a class="anchor-link" href="#Structure-your-repository">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Open source means that anybody can contribute. We used two branches:</p>
+<ul>
+<li>pull request on master to add content</li>
+<li>the gh-pages serves the published content</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>

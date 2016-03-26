@@ -1,0 +1,1083 @@
+---
+title: 
+---
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="An-overview-of-quality-assurance-practices-in-computational-research">An overview of quality assurance practices in computational research<a class="anchor-link" href="#An-overview-of-quality-assurance-practices-in-computational-research">&#182;</a></h1><p>Authors: James Davenport, Steven Lamerton, Oliver Laslett, Vincent Knight, James Hetherington</p>
+<p>Abstract: Research software has fundamentally different life cycles from commercial software. While this is (implcitly) recognised by authors and funders, its implications for the testing regime have not been clearly articulated. Here the authors from several UK research institutions have pooled their views on the testing strategies appropriate to research software at various stages of its evolution. What is sufficient for a program being used by one reserach student to underpin a thesis is probably insufficient for a program being used by many people, most of whom never read the source, in many institutons, on a wide range of computers.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">animation</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/font_manager.py:273: UserWarning: Matplotlib is building the font cache using fc-list. This may take a moment.
+  warnings.warn(&apos;Matplotlib is building the font cache using fc-list. This may take a moment.&apos;)
+/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/font_manager.py:273: UserWarning: Matplotlib is building the font cache using fc-list. This may take a moment.
+  warnings.warn(&apos;Matplotlib is building the font cache using fc-list. This may take a moment.&apos;)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Floating-Point-and-Testing">Floating Point and Testing<a class="anchor-link" href="#Floating-Point-and-Testing">&#182;</a></h3><p>Nearly all computational research is done using the floating-point arithmetic supplied by the vendor. These days this is normally assumed to conform to the IEEE (binary) floating point system \cite{IEEE2008}, which specifies the results of a sequence of floating-point operations. This actually \emph{does} simplify the developers' life (compared to the days of negotiating hexadecimal-based IBM formats etc.), but does \emph{not} mean that there are no problems with the floating point.</p>
+<ul>
+<li><p>Floating-pont may not produce the expected results:</p>
+<p>\begin{equation}
+\left(1+10^{20}\right)-10^{20}=10^{20}-10^{20}=0,
+\end{equation}</p>
+<p>not the $1$ one might expect. Of course,</p>
+<p>\begin{equation}
+1+\left(10^{20}-10^{20}\right)=1+0=1.
+\end{equation}</p>
+</li>
+<li><p>\cite{IEEE2008} does specify the result of a sequence of floating-point operations, but the user may not! In particular, in most programming languages,</p>
+<p>\begin{equation}
+1+10^{20}-10^{20}
+\end{equation}</p>
+<p>is ambiguous as to whether it is (1) or  (2), and therefore the compiler is free to produce 1 or 0. In practice, of course, the code will not be (3) but <code>!a+b+c!</code>, and indeed <code>!a!</code> etc. will probably be array elements, or expressions themselves. A slight change in \verb!a! etc., or indeed in the surrounding program, can change which order the compiler chooses to do the additions in, and, as we have seen, change the result.</p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Property-based-testing">Property based testing<a class="anchor-link" href="#Property-based-testing">&#182;</a></h3><p>In \cite{Claessen2000} a novel testing approach was described: <em>property based
+testing</em>. Claessen and Hughes describe a Haskell package <strong>QuickCheck</strong> that
+allows for the testing of functions under random inputs. In this instance it is
+often not the exact output that gets tested but the "property" of the output
+(thus where the name of this paradigm originates). Since this initial work some
+further property based testing has been provided. In \cite{Arts2008} a mechanism
+of shrinking (implemented in <strong>Quviq QuickCheck</strong>) of failed test cases is
+described: when a given set of inputs is found that fails a test it is shrunk to
+it a simplest form that still fails the test. As failing parameters are of
+course reported: this aids in debugging. Other similar yet adjacent testing
+frameworks are described in \cite{Runciman2008, Yang2006}, these include testing
+of storage as well as exhaustive parameter testing.</p>
+<p>In Python an implementation of <em>property based testing</em> is implemented in the
+hypothesis library \cite{hypothesis3.1}. This implements shrinking as described
+above. As an example let us consider the following function which implements the
+following (erroneous) property of a number that is divisible or not by 11:</p>
+<blockquote><p>A number is divisible by 11 if and only if the alternating (in sign) sum of
+the number’s digits is 0.</p>
+</blockquote>
+<p>As an example consider $121$, the alternating sum is: $1-2+1=0$ and indeed
+$121=11\times 11$.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">divisible_by_11</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Uses above criterion to check if number is divisible by 11&quot;&quot;&quot;</span>
+    <span class="n">string_number</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+    <span class="n">alternating_sum</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="n">i</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">d</span>
+                           <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">string_number</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">alternating_sum</span> <span class="o">==</span> <span class="mi">0</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">unittest</span>
+
+<span class="k">class</span> <span class="nc">TestDivisible</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">test_divisible_by_11</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">divisible_by_11</span><span class="p">(</span><span class="mi">11</span> <span class="o">*</span> <span class="n">k</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">divisible_by_11</span><span class="p">(</span><span class="mi">11</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1"># Some more examples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">divisible_by_11</span><span class="p">(</span><span class="mi">121</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">divisible_by_11</span><span class="p">(</span><span class="mi">12122</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">divisible_by_11</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">divisible_by_11</span><span class="p">(</span><span class="mi">12123</span><span class="p">))</span>
+
+<span class="n">TestDivisible</span><span class="p">()</span><span class="o">.</span><span class="n">test_divisible_by_11</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Running the above gives no failures. Below implements a basic hypothesis test:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">hypothesis</span> <span class="kn">import</span> <span class="n">given</span>  <span class="c1"># This is how we will define inputs</span>
+<span class="kn">from</span> <span class="nn">hypothesis.strategies</span> <span class="kn">import</span> <span class="n">integers</span>  <span class="c1"># This is the type of input we will use</span>
+
+<span class="k">class</span> <span class="nc">TestDivisible</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="nd">@given</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">integers</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>  <span class="c1"># This is the main decorator</span>
+    <span class="k">def</span> <span class="nf">test_divisible_by_11</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">divisible_by_11</span><span class="p">(</span><span class="mi">11</span> <span class="o">*</span> <span class="n">k</span><span class="p">))</span>
+
+<span class="n">TestDivisible</span><span class="p">()</span><span class="o">.</span><span class="n">test_divisible_by_11</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Falsifying example: test_divisible_by_11(self=&lt;__main__.TestDivisible testMethod=runTest&gt;, k=19)
+</pre>
+</div>
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansired">---------------------------------------------------------------------------</span>
+<span class="ansired">AssertionError</span>                            Traceback (most recent call last)
+<span class="ansigreen">&lt;ipython-input-4-94cf3652c375&gt;</span> in <span class="ansicyan">&lt;module&gt;</span><span class="ansiblue">()</span>
+<span class="ansigreen">      8</span>         self<span class="ansiyellow">.</span>assertTrue<span class="ansiyellow">(</span>divisible_by_11<span class="ansiyellow">(</span><span class="ansicyan">11</span> <span class="ansiyellow">*</span> k<span class="ansiyellow">)</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">      9</span> <span class="ansiyellow"></span>
+<span class="ansigreen">---&gt; 10</span><span class="ansiyellow"> </span>TestDivisible<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow">.</span>test_divisible_by_11<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">&lt;ipython-input-4-94cf3652c375&gt;</span> in <span class="ansicyan">test_divisible_by_11</span><span class="ansiblue">(self)</span>
+<span class="ansigreen">      5</span> <span class="ansiyellow"></span>
+<span class="ansigreen">      6</span>     <span class="ansiyellow">@</span>given<span class="ansiyellow">(</span>k<span class="ansiyellow">=</span>integers<span class="ansiyellow">(</span>min_value<span class="ansiyellow">=</span><span class="ansicyan">1</span><span class="ansiyellow">)</span><span class="ansiyellow">)</span>  <span class="ansired"># This is the main decorator</span><span class="ansiyellow"></span>
+<span class="ansigreen">----&gt; 7</span><span class="ansiyellow">     </span><span class="ansigreen">def</span> test_divisible_by_11<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> k<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">      8</span>         self<span class="ansiyellow">.</span>assertTrue<span class="ansiyellow">(</span>divisible_by_11<span class="ansiyellow">(</span><span class="ansicyan">11</span> <span class="ansiyellow">*</span> k<span class="ansiyellow">)</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">      9</span> <span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/hypothesis/core.py</span> in <span class="ansicyan">wrapped_test</span><span class="ansiblue">(*arguments, **kwargs)</span>
+<span class="ansigreen">    538</span>                         reify_and_execute(
+<span class="ansigreen">    539</span>                             search_strategy<span class="ansiyellow">,</span> test<span class="ansiyellow">,</span><span class="ansiyellow"></span>
+<span class="ansigreen">--&gt; 540</span><span class="ansiyellow">                             </span>print_example<span class="ansiyellow">=</span><span class="ansigreen">True</span><span class="ansiyellow">,</span> is_final<span class="ansiyellow">=</span><span class="ansigreen">True</span><span class="ansiyellow"></span>
+<span class="ansigreen">    541</span>                         ))
+<span class="ansigreen">    542</span>             <span class="ansigreen">except</span> <span class="ansiyellow">(</span>UnsatisfiedAssumption<span class="ansiyellow">,</span> StopTest<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/hypothesis/executors.py</span> in <span class="ansicyan">default_new_style_executor</span><span class="ansiblue">(data, function)</span>
+<span class="ansigreen">     55</span> <span class="ansiyellow"></span>
+<span class="ansigreen">     56</span> <span class="ansigreen">def</span> default_new_style_executor<span class="ansiyellow">(</span>data<span class="ansiyellow">,</span> function<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">---&gt; 57</span><span class="ansiyellow">     </span><span class="ansigreen">return</span> function<span class="ansiyellow">(</span>data<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">     58</span> <span class="ansiyellow"></span>
+<span class="ansigreen">     59</span> <span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/hypothesis/core.py</span> in <span class="ansicyan">run</span><span class="ansiblue">(data)</span>
+<span class="ansigreen">    101</span>                     lambda: &apos;Trying example: %s(%s)&apos; % (
+<span class="ansigreen">    102</span>                         test.__name__, arg_string(test, args, kwargs)))
+<span class="ansigreen">--&gt; 103</span><span class="ansiyellow">             </span><span class="ansigreen">return</span> test<span class="ansiyellow">(</span><span class="ansiyellow">*</span>args<span class="ansiyellow">,</span> <span class="ansiyellow">**</span>kwargs<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    104</span>     <span class="ansigreen">return</span> run<span class="ansiyellow"></span>
+<span class="ansigreen">    105</span> <span class="ansiyellow"></span>
+
+<span class="ansigreen">&lt;ipython-input-4-94cf3652c375&gt;</span> in <span class="ansicyan">test_divisible_by_11</span><span class="ansiblue">(self, k)</span>
+<span class="ansigreen">      6</span>     <span class="ansiyellow">@</span>given<span class="ansiyellow">(</span>k<span class="ansiyellow">=</span>integers<span class="ansiyellow">(</span>min_value<span class="ansiyellow">=</span><span class="ansicyan">1</span><span class="ansiyellow">)</span><span class="ansiyellow">)</span>  <span class="ansired"># This is the main decorator</span><span class="ansiyellow"></span>
+<span class="ansigreen">      7</span>     <span class="ansigreen">def</span> test_divisible_by_11<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> k<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">----&gt; 8</span><span class="ansiyellow">         </span>self<span class="ansiyellow">.</span>assertTrue<span class="ansiyellow">(</span>divisible_by_11<span class="ansiyellow">(</span><span class="ansicyan">11</span> <span class="ansiyellow">*</span> k<span class="ansiyellow">)</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">      9</span> <span class="ansiyellow"></span>
+<span class="ansigreen">     10</span> TestDivisible<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow">.</span>test_divisible_by_11<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/unittest/case.py</span> in <span class="ansicyan">assertTrue</span><span class="ansiblue">(self, expr, msg)</span>
+<span class="ansigreen">    675</span>         <span class="ansigreen">if</span> <span class="ansigreen">not</span> expr<span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">    676</span>             msg <span class="ansiyellow">=</span> self<span class="ansiyellow">.</span>_formatMessage<span class="ansiyellow">(</span>msg<span class="ansiyellow">,</span> <span class="ansiblue">&quot;%s is not true&quot;</span> <span class="ansiyellow">%</span> safe_repr<span class="ansiyellow">(</span>expr<span class="ansiyellow">)</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">--&gt; 677</span><span class="ansiyellow">             </span><span class="ansigreen">raise</span> self<span class="ansiyellow">.</span>failureException<span class="ansiyellow">(</span>msg<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    678</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    679</span>     <span class="ansigreen">def</span> _formatMessage<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> msg<span class="ansiyellow">,</span> standardMsg<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansired">AssertionError</span>: False is not true</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>An error is returned and hypothesis identifies that $k=19$ gives a failure.
+Indeed: $19\times 11= 209$. This indicates that our original property for
+divisibility by 11 does not hold, some basic algebra would confirm this, giving:</p>
+<blockquote><p>A number is divisible by 11 if and only if the alternating (in sign) sum of
+the number’s digits is divisible by 11.</p>
+</blockquote>
+<p>This can be implemented in python using:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">divisible_by_11</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Uses above criterion to check if number is divisible by 11&quot;&quot;&quot;</span>
+    <span class="n">string_number</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+    <span class="c1"># Using abs as the order of the alternating sum doesn&#39;t matter.</span>
+    <span class="n">alternating_sum</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">sum</span><span class="p">([(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="n">i</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">d</span>
+                               <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">string_number</span><span class="p">)]))</span>
+    <span class="c1"># Recursively calling the function</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">alternating_sum</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">11</span><span class="p">])</span> <span class="ow">or</span> <span class="n">divisible_by_11</span><span class="p">(</span><span class="n">alternating_sum</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Rerunning the tests gives no failures:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">class</span> <span class="nc">TestDivisible</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="nd">@given</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">integers</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>  <span class="c1"># This is the main decorator</span>
+    <span class="k">def</span> <span class="nf">test_divisible_by_11</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">divisible_by_11</span><span class="p">(</span><span class="mi">11</span> <span class="o">*</span> <span class="n">k</span><span class="p">))</span>
+
+<span class="n">TestDivisible</span><span class="p">()</span><span class="o">.</span><span class="n">test_divisible_by_11</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Continuous-Integration">Continuous Integration<a class="anchor-link" href="#Continuous-Integration">&#182;</a></h2><p>Continuous integration is a development process where code is frequently integrated on a central continuous integration server. This centralisation allows the automation of a variety of quality assurance processes such as the building of the codebase, running of tests, checking of performance and the execution of static analysis tools. By monitoring the revision control system the server can automatically run these operations as the code is changed, giving rapid feedback to the developer. Generally these systems give a web interface to view the output of the build jobs and are also extensible to allow general automation, for example the production of tarballs or other packages for formal software release. For example this paper and its associated website are built using a <a href="https://travis-ci.org/drvinceknight/TestingPaper">continuous integration server</a> as changes are made to the underlying content.</p>
+<p>A number of open source and commercial continuous integration servers are available, both hosted and for self hosting. <a href="https://travis-ci.org/">Travis CI</a> is one of the most popular hosted options and has tight integration with the GitHub code repository. <a href="http://jenkins-ci.org/">Jenkins</a> is the most popular of the open source, self-hosted options and has a large community writing plugins to further extend the functionality.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Visualisation-based-Testing">Visualisation based Testing<a class="anchor-link" href="#Visualisation-based-Testing">&#182;</a></h2><p>When testing scientific code, it helps to put effort into visualisations which allow you to see
+the behaviour of the calculation, and make it easy to regenerate these visualisations with just one command.</p>
+<p>This brings the automated nature of assertion based testing to the full information-transmission "bandwidth"
+of the visual display of quantitative information.</p>
+<p>For example, in Jupyter, we can see that an implementation of Conway's game of life is working using an
+embedded animation:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">class</span> <span class="nc">Life</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sizex</span><span class="p">,</span> <span class="n">sizey</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">sizex</span> <span class="o">=</span> <span class="n">sizex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sizey</span> <span class="o">=</span> <span class="n">sizey</span> <span class="ow">or</span> <span class="n">sizex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">sizex</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sizey</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">randseed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mf">0.6</span><span class="p">):</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizex</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sizey</span><span class="p">)</span><span class="o">&gt;</span><span class="n">thresh</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">glide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">for</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">[</span><span class="n">x</span><span class="o">+</span><span class="n">offset</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="n">offset</span><span class="p">]</span><span class="o">=</span><span class="bp">True</span>
+          
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">neighbourhood_pop</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">up</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">down</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">upleft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">up</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">upright</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">up</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">downleft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">down</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">downright</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">down</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neighbourhood_pop</span> <span class="o">=</span> <span class="p">(</span><span class="n">up</span> <span class="o">+</span> <span class="n">down</span> <span class="o">+</span> <span class="n">right</span> <span class="o">+</span> <span class="n">left</span> <span class="o">+</span>
+                             <span class="n">upleft</span> <span class="o">+</span> <span class="n">upright</span> <span class="o">+</span> <span class="n">downleft</span> <span class="o">+</span> <span class="n">downright</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbourhood_pop</span><span class="o">==</span><span class="mi">2</span><span class="p">),</span>
+                                  <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbourhood_pop</span><span class="o">==</span><span class="mi">3</span><span class="p">)),</span>
+                                  <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbourhood_pop</span><span class="o">==</span><span class="mi">3</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next</span>
+        
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Life</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">glide</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">figure</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">()</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greys&#39;</span><span class="p">,</span>  <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">animated</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAP4AAAD+CAYAAAAalrhRAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz
+AAALEgAACxIB0t1+/AAACuVJREFUeJzt3V2IXId5h/Hnr4oahxRVaZAEke0QAm4wKQm0psUXmTYN
+URuoDAXjQIOd6xQbAkGye6HxRUucm1DoZd2gGtI2DTSSL4pkowylhaRqbWETW3Kg4OajWtOkbgiB
+kI+3FztWx9Ls7mh3ZndG7/ODgXPOnrPnldhnz5kzAqWqkNTLvr0eQNLuM3ypIcOXGjJ8qSHDlxoy
+fKmhHYWf5FiSy0leTXJiXkNJWqxs93P8JPuAV4EPA98FLgIPVtXl+Y0naRF2csW/F/hmVb1WVT8B
+/hY4Pp+xJC3S/h0c+y7gWxPr32b9l8FbJPGfBkp7pKoybfuuPNyrKk6dOkVVrdRr1WZetXmdebGv
+zezkiv8d4M6J9aPjbTcYDoeMRiOGwyGDwYDBYLCD00qaZjQaMRqNZtp3J+FfBN6b5C7gv4AHgY9P
+23E4HF57SVqM6y+qTzzxxIb7bjv8qvpZkj8GzrP+luGpqnpls6FWzarNvGrzgjPvlW1/nDfzCZJa
+9Dkk3SgJtZcP9yQtF8OXGjJ8qSHDlxoyfKkhw5caMnypIcOXGjJ8qSHDlxoyfKkhw5caMnypIcOX
+GjJ8qSHDlxoyfKkhw5caMnypIcOXGjJ8qSHDlxoyfKkhw5caMnypIcOXGjJ8qSHDlxoyfKkhw5ca
+MnypIcOXGjJ8qSHDlxoyfKkhw5ca2jL8JE8lWUvy4sS2g0nOJ7mS5FySA4sdU9I8zXLF/wLw0eu2
+nQSeq6q7gQvAY/MeTNLibBl+Vf0z8D/XbT4OnB4vnwbun/NcSyXJDS9plW33Pf6hqloDqKqrwKH5
+jSRp0fbP6fvUZl8cDofXlgeDAYPBYE6nlfSm0WjEaDSaad9Ubdrs+k7JXcAzVfVr4/VXgEFVrSU5
+Any1qt63wbE1yzmW2bRb+1X/M+nWl4Sqmvq+dNZb/YxfbzoLPDxefgg4s+3pVkBV3fDyPb9W2ZZX
+/CRfBAbArwBrwCngK8DfA3cArwEPVNUbGxy/8lf8aa6P/Vb8M2q1bXbFn+lWf4cnN3xpD8zjVl/S
+LcTwpYbm9XHeLcWHdbrVecWXGjJ8qSHDlxryPf4UfjSnW51XfKkhw5caMnypIcOXGjJ8qSHDlxoy
+fKkhw5caMnypIcOXGjJ8qSHDlxoyfKkhw5caMnypIcOXGjJ8qSHDlxoyfKkhw5caMnypIcOXGjJ8
+qSHDlxoyfKkhw5caMnypIcOXGtoy/CRHk1xI8o0kLyV5ZLz9YJLzSa4kOZfkwOLHlTQP2ep/hk1y
+BDhSVZeSvB34d+A48Enge1X1uSQngINVdXLK8eX/PivtviRUVaZ9bcsrflVdrapL4+UfAq8AR1mP
+//R4t9PA/fMZV9Ki3dR7/CTvBj4AfA04XFVrsP7LATg07+EkLcbM4Y9v878MPDq+8l9//+79vLQi
+9s+yU5L9rEf/dFWdGW9eS3K4qtbGzwFe3+j44XB4bXkwGDAYDLY9sKTpRqMRo9Fopn23fLgHkOSv
+gf+uqk9PbHsS+H5VPenDPWn5bPZwb5an+vcB/wS8xPrtfAGPA/8KfAm4A3gNeKCq3phyvOFLe2BH
+4c/h5IYv7YEdfZwn6dZj+FJDhi81ZPhSQ4YvNWT4UkOGLzVk+FJDhi81ZPhSQ4YvNWT4UkOGLzVk
++FJDhi81ZPhSQ4YvNWT4UkOGLzVk+FJDhi81ZPhSQ4YvNWT4UkOGLzVk+FJDhi81ZPhSQ4YvNWT4
+UkOGLzVk+FJDhi81ZPhSQ4YvNWT4UkNbhp/ktiRfT/JCkpeSnBpvP5jkfJIrSc4lObD4cSXNQ6pq
+652St1XVj5L8AvAvwCPAHwLfq6rPJTkBHKyqk1OOrVnOIWm+klBVmfa1mW71q+pH48XbgP1AAceB
+0+Ptp4H7dzinpF0yU/hJ9iV5AbgKPFtVF4HDVbUGUFVXgUOLG1PSPM16xf95VX0QOArcm+Qe1q/6
+b9lt3sNJWoz9N7NzVf0gyQg4BqwlOVxVa0mOAK9vdNxwOLy2PBgMGAwG2xpW0sZGoxGj0Wimfbd8
+uJfkncBPqup/k9wOnAM+C3wI+H5VPenDPWn5bPZwb5bw38/6w7t949ffVdWfJnkH8CXgDuA14IGq
+emPK8YYv7YEdhT+Hkxu+tAd2/HGepFuL4UsNGb7UkOFLDRm+1JDhSw0ZvtSQ4UsNGb7UkOFLDRm+
+1JDhSw0ZvtSQ4UsNGb7UkOFLDRm+1JDhSw0ZvtSQ4UsNGb7UkOFLDRm+1JDhSw0ZvtSQ4UsNGb7U
+kOFLDRm+1JDhSw0ZvtSQ4UsNGb7UkOFLDRm+1JDhSw3NHH6SfUmeT3J2vH4wyfkkV5KcS3JgcWNK
+mqebueI/Crw8sX4SeK6q7gYuAI/NczBJizNT+EmOAr8P/OXE5uPA6fHyaeD++Y4maVFmveJ/HvgM
+UBPbDlfVGkBVXQUOzXk2SQuyf6sdknwMWKuqS0kGm+xaG31hOBxeWx4MBgwGm30bSdsxGo0YjUYz
+7ZuqDXtd3yH5M+CPgJ8CtwO/BPwD8OvAoKrWkhwBvlpV75tyfG11Dknzl4SqyrSvbXmrX1WPV9Wd
+VfUe4EHgQlV9AngGeHi820PAmTnNK2nBdvI5/meBjyS5Anx4vC5pBWx5q7/jE3irL+2JHd3qS7r1
+GL7UkOFLDRm+1JDhSw0ZvtSQ4UsNGb7UkOFLDRm+1JDhSw0ZvtSQ4UsNGb7UkOFLDRm+1JDhSw0Z
+vtSQ4UsNGb7UkOFLDRm+1JDhSw0ZvtSQ4UsNGb7UkOFLDRm+1JDhSw0ZvtSQ4UsNGb7UkOFLDRm+
+1NCuhT8ajXbrVHOzajOv2rzgzHvF8DexajOv2rzgzHvFW32pIcOXGkpVLfYEyWJPIGlDVZVp2xce
+vqTl462+1JDhSw3tSvhJjiW5nOTVJCd245w3K8lTSdaSvDix7WCS80muJDmX5MBezjgpydEkF5J8
+I8lLSR4Zb1/KmZPcluTrSV4Yz3tqvH0p552UZF+S55OcHa8v/cxbWXj4SfYBfwF8FLgH+HiSX130
+ebfhC6zPOOkk8FxV3Q1cAB7b9ak29lPg01V1D/BbwKfGf69LOXNV/Rj47ar6IPAB4PeS3MuSznud
+R4GXJ9ZXYebNVdVCX8BvAv84sX4SOLHo825z1ruAFyfWLwOHx8tHgMt7PeMms38F+N1VmBl4G/Bv
+wG8s+7zAUeBZYACcXbWfi41eu3Gr/y7gWxPr3x5vWwWHqmoNoKquAof2eJ6pkryb9avo11j/gVzK
+mce3zC8AV4Fnq+oiSzzv2OeBzwCTH38t+8xb8uHezVm6zz6TvB34MvBoVf2QG2dcmpmr6ue1fqt/
+FLg3yT0s8bxJPgasVdUlYOrn4WNLM/OsdiP87wB3TqwfHW9bBWtJDgMkOQK8vsfzvEWS/axH/3RV
+nRlvXuqZAarqB8AIOMZyz3sf8AdJ/gP4G+B3kjwNXF3imWeyG+FfBN6b5K4kvwg8CJzdhfNuR3jr
+b/azwMPj5YeAM9cfsMf+Cni5qv58YttSzpzknW8+/U5yO/AR4BWWdF6Aqnq8qu6sqvew/nN7oao+
+ATzDks48s116QHIMuAJ8Ezi51w82Npjxi8B3gR8D/wl8EjgIPDee/Tzwy3s958S89wE/Ay4BLwDP
+j/+e37GMMwPvH894CXgR+JPx9qWcd8r8H+L/H+6txMybvfwnu1JDPtyTGjJ8qSHDlxoyfKkhw5ca
+MnypIcOXGjJ8qaH/AyBey9ZqkBHPAAAAAElFTkSuQmCC
+"
+>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">animate</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+    <span class="n">image</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">current</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+<span class="n">anim</span><span class="o">=</span><span class="n">animation</span><span class="o">.</span><span class="n">FuncAnimation</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">animate</span><span class="p">,</span>
+                        <span class="n">frames</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">blit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">JSAnimation</span> <span class="kn">import</span> <span class="n">IPython_display</span>
+<span class="n">anim</span>  
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansired">---------------------------------------------------------------------------</span>
+<span class="ansired">TypeError</span>                                 Traceback (most recent call last)
+<span class="ansigreen">&lt;ipython-input-9-b0d674f2e2b4&gt;</span> in <span class="ansicyan">&lt;module&gt;</span><span class="ansiblue">()</span>
+<span class="ansigreen">      4</span> <span class="ansiyellow"></span>
+<span class="ansigreen">      5</span> anim=animation.FuncAnimation(figure, animate,
+<span class="ansigreen">----&gt; 6</span><span class="ansiyellow">                         frames=200, interval=20, blit=True)
+</span><span class="ansigreen">      7</span> <span class="ansigreen">from</span> JSAnimation <span class="ansigreen">import</span> IPython_display<span class="ansiyellow"></span>
+<span class="ansigreen">      8</span> anim<span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">__init__</span><span class="ansiblue">(self, fig, func, frames, init_func, fargs, save_count, **kwargs)</span>
+<span class="ansigreen">   1163</span>         self<span class="ansiyellow">.</span>_save_seq <span class="ansiyellow">=</span> <span class="ansiyellow">[</span><span class="ansiyellow">]</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1164</span> <span class="ansiyellow"></span>
+<span class="ansigreen">-&gt; 1165</span><span class="ansiyellow">         </span>TimedAnimation<span class="ansiyellow">.</span>__init__<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> fig<span class="ansiyellow">,</span> <span class="ansiyellow">**</span>kwargs<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1166</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   1167</span>         <span class="ansired"># Need to reset the saved seq, since right now it will contain data</span><span class="ansiyellow"></span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">__init__</span><span class="ansiblue">(self, fig, interval, repeat_delay, repeat, event_source, *args, **kwargs)</span>
+<span class="ansigreen">   1007</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   1008</span>         Animation.__init__(self, fig, event_source=event_source,
+<span class="ansigreen">-&gt; 1009</span><span class="ansiyellow">                            *args, **kwargs)
+</span><span class="ansigreen">   1010</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   1011</span>     <span class="ansigreen">def</span> _step<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> <span class="ansiyellow">*</span>args<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">__init__</span><span class="ansiblue">(self, fig, event_source, blit)</span>
+<span class="ansigreen">    634</span>                                                       self._stop)
+<span class="ansigreen">    635</span>         <span class="ansigreen">if</span> self<span class="ansiyellow">.</span>_blit<span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">--&gt; 636</span><span class="ansiyellow">             </span>self<span class="ansiyellow">.</span>_setup_blit<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    637</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    638</span>     <span class="ansigreen">def</span> _start<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> <span class="ansiyellow">*</span>args<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">_setup_blit</span><span class="ansiblue">(self)</span>
+<span class="ansigreen">    905</span>         self._resize_id = self._fig.canvas.mpl_connect(&apos;resize_event&apos;,
+<span class="ansigreen">    906</span>                                                        self._handle_resize)
+<span class="ansigreen">--&gt; 907</span><span class="ansiyellow">         </span>self<span class="ansiyellow">.</span>_post_draw<span class="ansiyellow">(</span><span class="ansigreen">None</span><span class="ansiyellow">,</span> self<span class="ansiyellow">.</span>_blit<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    908</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    909</span>     <span class="ansigreen">def</span> _handle_resize<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> <span class="ansiyellow">*</span>args<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">_post_draw</span><span class="ansiblue">(self, framedata, blit)</span>
+<span class="ansigreen">    870</span>             self<span class="ansiyellow">.</span>_blit_draw<span class="ansiyellow">(</span>self<span class="ansiyellow">.</span>_drawn_artists<span class="ansiyellow">,</span> self<span class="ansiyellow">.</span>_blit_cache<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    871</span>         <span class="ansigreen">else</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">--&gt; 872</span><span class="ansiyellow">             </span>self<span class="ansiyellow">.</span>_fig<span class="ansiyellow">.</span>canvas<span class="ansiyellow">.</span>draw_idle<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    873</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    874</span>     <span class="ansired"># The rest of the code in this class is to facilitate easy blitting</span><span class="ansiyellow"></span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/backend_bases.py</span> in <span class="ansicyan">draw_idle</span><span class="ansiblue">(self, *args, **kwargs)</span>
+<span class="ansigreen">   2024</span>         <span class="ansigreen">if</span> <span class="ansigreen">not</span> self<span class="ansiyellow">.</span>_is_idle_drawing<span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">   2025</span>             <span class="ansigreen">with</span> self<span class="ansiyellow">.</span>_idle_draw_cntx<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">-&gt; 2026</span><span class="ansiyellow">                 </span>self<span class="ansiyellow">.</span>draw<span class="ansiyellow">(</span><span class="ansiyellow">*</span>args<span class="ansiyellow">,</span> <span class="ansiyellow">**</span>kwargs<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">   2027</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   2028</span>     <span class="ansigreen">def</span> draw_cursor<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> event<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/backends/backend_agg.py</span> in <span class="ansicyan">draw</span><span class="ansiblue">(self)</span>
+<span class="ansigreen">    472</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    473</span>         <span class="ansigreen">try</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">--&gt; 474</span><span class="ansiyellow">             </span>self<span class="ansiyellow">.</span>figure<span class="ansiyellow">.</span>draw<span class="ansiyellow">(</span>self<span class="ansiyellow">.</span>renderer<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    475</span>         <span class="ansigreen">finally</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">    476</span>             RendererAgg<span class="ansiyellow">.</span>lock<span class="ansiyellow">.</span>release<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/artist.py</span> in <span class="ansicyan">draw_wrapper</span><span class="ansiblue">(artist, renderer, *args, **kwargs)</span>
+<span class="ansigreen">     59</span>     <span class="ansigreen">def</span> draw_wrapper<span class="ansiyellow">(</span>artist<span class="ansiyellow">,</span> renderer<span class="ansiyellow">,</span> <span class="ansiyellow">*</span>args<span class="ansiyellow">,</span> <span class="ansiyellow">**</span>kwargs<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">     60</span>         before<span class="ansiyellow">(</span>artist<span class="ansiyellow">,</span> renderer<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">---&gt; 61</span><span class="ansiyellow">         </span>draw<span class="ansiyellow">(</span>artist<span class="ansiyellow">,</span> renderer<span class="ansiyellow">,</span> <span class="ansiyellow">*</span>args<span class="ansiyellow">,</span> <span class="ansiyellow">**</span>kwargs<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">     62</span>         after<span class="ansiyellow">(</span>artist<span class="ansiyellow">,</span> renderer<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">     63</span> <span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/figure.py</span> in <span class="ansicyan">draw</span><span class="ansiblue">(self, renderer)</span>
+<span class="ansigreen">   1163</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   1164</span>         self<span class="ansiyellow">.</span>_cachedRenderer <span class="ansiyellow">=</span> renderer<span class="ansiyellow"></span>
+<span class="ansigreen">-&gt; 1165</span><span class="ansiyellow">         </span>self<span class="ansiyellow">.</span>canvas<span class="ansiyellow">.</span>draw_event<span class="ansiyellow">(</span>renderer<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1166</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   1167</span>     <span class="ansigreen">def</span> draw_artist<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> a<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/backend_bases.py</span> in <span class="ansicyan">draw_event</span><span class="ansiblue">(self, renderer)</span>
+<span class="ansigreen">   1807</span>         s <span class="ansiyellow">=</span> <span class="ansiblue">&apos;draw_event&apos;</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1808</span>         event <span class="ansiyellow">=</span> DrawEvent<span class="ansiyellow">(</span>s<span class="ansiyellow">,</span> self<span class="ansiyellow">,</span> renderer<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">-&gt; 1809</span><span class="ansiyellow">         </span>self<span class="ansiyellow">.</span>callbacks<span class="ansiyellow">.</span>process<span class="ansiyellow">(</span>s<span class="ansiyellow">,</span> event<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1810</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   1811</span>     <span class="ansigreen">def</span> resize_event<span class="ansiyellow">(</span>self<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/cbook.py</span> in <span class="ansicyan">process</span><span class="ansiblue">(self, s, *args, **kwargs)</span>
+<span class="ansigreen">    561</span>             <span class="ansigreen">for</span> cid<span class="ansiyellow">,</span> proxy <span class="ansigreen">in</span> list<span class="ansiyellow">(</span>six<span class="ansiyellow">.</span>iteritems<span class="ansiyellow">(</span>self<span class="ansiyellow">.</span>callbacks<span class="ansiyellow">[</span>s<span class="ansiyellow">]</span><span class="ansiyellow">)</span><span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">    562</span>                 <span class="ansigreen">try</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">--&gt; 563</span><span class="ansiyellow">                     </span>proxy<span class="ansiyellow">(</span><span class="ansiyellow">*</span>args<span class="ansiyellow">,</span> <span class="ansiyellow">**</span>kwargs<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    564</span>                 <span class="ansigreen">except</span> ReferenceError<span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">    565</span>                     self<span class="ansiyellow">.</span>_remove_proxy<span class="ansiyellow">(</span>proxy<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/cbook.py</span> in <span class="ansicyan">__call__</span><span class="ansiblue">(self, *args, **kwargs)</span>
+<span class="ansigreen">    428</span>             mtd <span class="ansiyellow">=</span> self<span class="ansiyellow">.</span>func<span class="ansiyellow"></span>
+<span class="ansigreen">    429</span>         <span class="ansired"># invoke the callable and return the result</span><span class="ansiyellow"></span><span class="ansiyellow"></span>
+<span class="ansigreen">--&gt; 430</span><span class="ansiyellow">         </span><span class="ansigreen">return</span> mtd<span class="ansiyellow">(</span><span class="ansiyellow">*</span>args<span class="ansiyellow">,</span> <span class="ansiyellow">**</span>kwargs<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    431</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    432</span>     <span class="ansigreen">def</span> __eq__<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> other<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">_start</span><span class="ansiblue">(self, *args)</span>
+<span class="ansigreen">    646</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    647</span>         <span class="ansired"># Now do any initial draw</span><span class="ansiyellow"></span><span class="ansiyellow"></span>
+<span class="ansigreen">--&gt; 648</span><span class="ansiyellow">         </span>self<span class="ansiyellow">.</span>_init_draw<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    649</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    650</span>         <span class="ansired"># Add our callback for stepping the animation and</span><span class="ansiyellow"></span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">_init_draw</span><span class="ansiblue">(self)</span>
+<span class="ansigreen">   1191</span>         <span class="ansired"># artists.</span><span class="ansiyellow"></span><span class="ansiyellow"></span>
+<span class="ansigreen">   1192</span>         <span class="ansigreen">if</span> self<span class="ansiyellow">.</span>_init_func <span class="ansigreen">is</span> <span class="ansigreen">None</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">-&gt; 1193</span><span class="ansiyellow">             </span>self<span class="ansiyellow">.</span>_draw_frame<span class="ansiyellow">(</span>next<span class="ansiyellow">(</span>self<span class="ansiyellow">.</span>new_frame_seq<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow">)</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1194</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   1195</span>         <span class="ansigreen">else</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">_draw_frame</span><span class="ansiblue">(self, framedata)</span>
+<span class="ansigreen">   1212</span>         self<span class="ansiyellow">.</span>_drawn_artists <span class="ansiyellow">=</span> self<span class="ansiyellow">.</span>_func<span class="ansiyellow">(</span>framedata<span class="ansiyellow">,</span> <span class="ansiyellow">*</span>self<span class="ansiyellow">.</span>_args<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1213</span>         <span class="ansigreen">if</span> self<span class="ansiyellow">.</span>_blit<span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">-&gt; 1214</span><span class="ansiyellow">             </span><span class="ansigreen">for</span> a <span class="ansigreen">in</span> self<span class="ansiyellow">.</span>_drawn_artists<span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1215</span>                 a<span class="ansiyellow">.</span>set_animated<span class="ansiyellow">(</span>self<span class="ansiyellow">.</span>_blit<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+
+<span class="ansired">TypeError</span>: &apos;NoneType&apos; object is not iterable</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The point of this is to build your visualisation infrastructure early, along with the code, as it
+allows a much more fluent understanding of any problems than debugging through print statements or debuggers.</p>
+<p>Tools such as Paraview and Visit are very helpful here.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Testing-Invariants-and-Conservation-Laws">Testing Invariants and Conservation Laws<a class="anchor-link" href="#Testing-Invariants-and-Conservation-Laws">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If it is too hard to manually build a fixture, we can test on a dervied property of the calculation which
+we know. This could be a derivative of a function in the code with respect to one of its parameters, or a
+conservation law for a simulation.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">yield_count_conway</span><span class="p">(</span><span class="n">limit</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Life</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">glide</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">limit</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">current</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="nb">list</span><span class="p">(</span><span class="n">yield_count_conway</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[11]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[5, 5, 5, 5, 5]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">test_conserved_conway</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">total</span> <span class="ow">in</span> <span class="n">yield_count_conway</span><span class="p">(</span><span class="mi">200</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">total</span><span class="o">==</span><span class="mi">5</span>
+
+<span class="n">test_conserved_conway</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Testing-Parallelism-through-Multiple-Class-Instances">Testing Parallelism through Multiple Class Instances<a class="anchor-link" href="#Testing-Parallelism-through-Multiple-Class-Instances">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>When testing distributed memory parallelisation, we have found it helpful to write tests to validate separately the decomposition of the problem
+and communication between processes, and the use of the parallel framework such as MPI.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Thus, a serial code which achieves, for example, a halo swap, between multiple instances of the class,
+can be tested without parallelism to validate the bookkeeping</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">class</span> <span class="nc">OneDHaloLife</span><span class="p">(</span><span class="n">Life</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OneDHaloLife</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">add_right_neighbour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">neigh</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">neigh</span>
+        <span class="n">neigh</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="bp">self</span>
+        
+    <span class="k">def</span> <span class="nf">add_left_neighbour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">neigh</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">neigh</span>
+        <span class="n">neigh</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="bp">self</span>
+        
+    <span class="k">def</span> <span class="nf">swap</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">current</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">current</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,:]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">modelA</span> <span class="o">=</span> <span class="n">OneDHaloLife</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">modelB</span> <span class="o">=</span> <span class="n">OneDHaloLife</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">modelA</span><span class="o">.</span><span class="n">glide</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="n">modelA</span><span class="o">.</span><span class="n">add_right_neighbour</span><span class="p">(</span><span class="n">modelB</span><span class="p">)</span>
+<span class="n">modelA</span><span class="o">.</span><span class="n">add_left_neighbour</span><span class="p">(</span><span class="n">modelB</span><span class="p">)</span>
+
+<span class="n">figure</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">()</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">modelA</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="n">modelB</span><span class="o">.</span><span class="n">current</span><span class="p">]),</span> 
+                    <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greys&#39;</span><span class="p">,</span>  <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">animated</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAAD/CAYAAAAe5F83AAAABHNCSVQICAgIfAhkiAAAAAlwSFlz
+AAALEgAACxIB0t1+/AAACexJREFUeJzt3V+MXGUdxvHvUyoKgoAaSmSh/IuAREESK6YmXUGkQFK4
+MKTEEMXojSiNGELBi4E7IDGExHhhRFIbkQAXUhJFIN2NMREo0qbYdoGESKHYJahguCGIPy/mFLfL
+brs7z0xnd+b5JJswh5n3nLJfzjndPXlfVRURnVrS7wOIxS0BhSUBhSUBhSUBhSUBhaVnAUlaLWlC
+0guSburVfqK/1IufA0laArwAXAS8BmwB1lbVRNd3Fn3VqzPQCuDFqnq5qt4F7geu6NG+oo96FdCJ
+wCtTXr/abIsBs7RfO5aU36EsMlWl6dt6dQbaA5w85fVIs20/q1atotVq0Wq1GBsbo6q68tVqtbo2
+Vi/HXMjHOjY29v73ptVqzfqN7tUZaAtwhqTlwN+BtcDV0980OjrKrbfe2qNDCMfo6Cijo6Pvv77t
+tttmfF9PAqqq9yR9H3iM9lnunqra1Yt9RX/17B6oqh4FzjzQe6YW3k29GDfHOrOe/BxoTjuWKs8i
+LR6SDulNdAyJBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSW
+BBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWBBSWjgOSNCJps6Qd
+kp6TdH2z/ThJj0l6XtIfJB3TvcONhabjKe4knQCcUFXbJB0F/IX2bPTXAv+oqjubNTKOq6r1M3w+
+U9wtIl2f4q6q9lbVtuaf3wZ20Z4P+gpgQ/O2DcCVne4jFr6u3ANJOgU4D3gSWFZVk9CODDi+G/tY
+KCQhfeB/xKFlB9Rcvh4C1jVnounXpVynBpg1T7SkpbTj2VhVDzebJyUtq6rJ5j7p9dk+P3WW+ukz
+oy9U++7b9p2FBvU+bnx8nPHx8YO+z5onWtKvgDeq6oYp2+4A/llVdwzyTfSgBzTdbDfRzt/CVgJ/
+BJ6jfZkq4BbgaeAB4CTgZeCqqnpzhs8vqoBmu+9ZTH8GR9cDciWgxSUz1UdP9G3BucVmWM4085Uz
+UFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgS
+UFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFgSUFi6Mc3vEknPStrUvM5SB0OkG2eg
+dcDOKa/XA09U1ZnAZuDmLuwjFigrIEkjwGXAL6ZszlIHQ8Q9A90F3Mj+s9EP9FIHsT9nuafLgclm
+wZUDLR6R2SkHmDNL60pgjaTLgCOAoyVtBPYO8lIHw+KQLHXw/iDSKuBHVbVG0p201wsb6KUOhs2h
+nGj8duBiSc8DFzWvY0BlqYOYkyx1ED2RgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKS
+gMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKS
+gMKSgMKSgMLiTjR+jKQHJe2StEPSF7PUwXBxz0B3A7+rqrOBc4EJstTBUOl4kk1JHwO2VtXp07ZP
+AKumzBM9XlVnzfD5TLK5iPRiks1TgTck3dus1vNzSUeSpQ6GijNT/VLgfOC6qnpG0l20L1/TTyuz
+nmYyU/3C1fOZ6iUtA/5cVac1r79MO6DTgdEpl7Cx5h5p+udzCVtEun4Jay5Tr0j6dLPpImAHsAn4
+VrPtm8DDne4jFj5rpnpJ59JeK+xDwEvAtcBhwAPAScDLwFVV9eYMn80ZaBGZ7QyUpQ5iTrLUQfRE
+AgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpL
+AgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgpLAgqLu9TBDyX9VdJ2Sb+WdHiW
+OhguHQck6VPAD4Dzq+pztOeNvposdTBU3EvYYcBHJS0FjgD2AFcAG5p/vwG40txHLGDOPNGvAT8B
+dtMO562qeoIsdTBUOl7qQNKxtM82y4G3gAclfYMsdTAQDsVSB18HLqmq7zavrwEuAC4kSx0MnF7M
+E70buEDSRySJ9lIHO8lSB0PFXeqgBawF3gW2At8BjiZLHQycLHUQlix1ED2RgMKSgMKSgMKSgMKS
+gMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKS
+gMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMKSgMJy0IAk3SNpUtL2KdtmXc5A0s2SXpS0S9LXenXg
+sTDM5Qx0L3DJtG0zLmcg6TPAVcDZwKXAz5oZXGNAHTSgqvoT8K9pm2dbzmANcH9V/aeq/ga8CKzo
+zqHGQtTpPdDxsyxncCLwypT37Wm2xYDqeKmDaTqarzdLHSxcXV3qQNJy4JFmWSck7WKG5QwkrQeq
+qu5o3vco0Kqqp2YYM/NELyLuPNFqvvaZbTmDTcDaZuG5U4EzgKc7OuJYFA56CZN0HzAKfELSbqAF
+3E57dZ5v0yxnAFBVOyU9QHvNjHeB7+U0M+Cqqi9fQI2NjVUv9GLcYT/Wdiof/D729SfRc7lJWyjj
+5lhnll9lhCUBhaWvyz31ZcfRsVpI64XFYMglLCwJKCx9C0jSakkTkl6QdJMxzryeV5rjmCOSNkva
+Iek5Sde740r6sKSnJG1txmx141ibMZZIelbSpm6NOVd9CUjSEuCntJ8zOge4WtJZHQ435+eV5uE/
+wA1VdQ7wJeC65vg6Hreq3gG+UlWfB84DLpW0ogvHCrCO9k//9+nGmHMz008Xe/1Fe3353095vR64
+yRhvObB9yusJYFnzzycAE+bx/hb4arfGBY4EngG+4I4JjACP0/5106Ze/PkP9NWvS9j054ZepbvP
+Dc32vNK8STqF9hnjSdrflI7HbS41W4G9wONVtcUdE7gLuJH9H6lxx5yzYbmJ7uhnFZKOAh4C1lXV
+2zOMM69xq+q/zSVsBFgh6RxnTEmXA5NVtY39n5b4wK7nc5zz0a+A9gAnT3k90mzrlklJywCa55Ve
+n+8AkpbSjmdjVe17XMUeF6Cq/g2MA6vNMVcCayS9BPwGuFDSRmBvN45zLvoV0BbgDEnLJR0OrKX9
+LFGn5vq80nz8EthZVXd3Y1xJn9z3tyFJRwAXA7ucMavqlqo6uapOo/3fcHNVXQM80umY89brG+YD
+3PytBp6n/eD9emOc+4DXgHeA3cC1wHHAE834jwHHznPMlcB7wDZgK/Bsc7wf73Rc4LPNONuA7cCP
+m+0djzlt/FX8/ya6K2PO5Su/ygjLsNxER48koLAkoLAkoLAkoLAkoLAkoLAkoLD8DwnCMvw/46ov
+AAAAAElFTkSuQmCC
+"
+>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">animate</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+    <span class="n">image</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">modelA</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="n">modelB</span><span class="o">.</span><span class="n">current</span><span class="p">]))</span>
+    <span class="n">modelA</span><span class="o">.</span><span class="n">swap</span><span class="p">()</span>
+    <span class="n">modelB</span><span class="o">.</span><span class="n">swap</span><span class="p">()</span>
+    <span class="n">modelA</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+    <span class="n">modelB</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">animation</span>
+<span class="n">anim</span><span class="o">=</span><span class="n">animation</span><span class="o">.</span><span class="n">FuncAnimation</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">animate</span><span class="p">,</span>
+                        <span class="n">frames</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">blit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">JSAnimation</span> <span class="kn">import</span> <span class="n">IPython_display</span>
+<span class="n">anim</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansired">---------------------------------------------------------------------------</span>
+<span class="ansired">TypeError</span>                                 Traceback (most recent call last)
+<span class="ansigreen">&lt;ipython-input-16-c56b02077b7d&gt;</span> in <span class="ansicyan">&lt;module&gt;</span><span class="ansiblue">()</span>
+<span class="ansigreen">      1</span> <span class="ansigreen">from</span> matplotlib <span class="ansigreen">import</span> animation<span class="ansiyellow"></span>
+<span class="ansigreen">      2</span> anim=animation.FuncAnimation(figure, animate,
+<span class="ansigreen">----&gt; 3</span><span class="ansiyellow">                         frames=250, interval=20, blit=True)
+</span><span class="ansigreen">      4</span> <span class="ansigreen">from</span> JSAnimation <span class="ansigreen">import</span> IPython_display<span class="ansiyellow"></span>
+<span class="ansigreen">      5</span> anim<span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">__init__</span><span class="ansiblue">(self, fig, func, frames, init_func, fargs, save_count, **kwargs)</span>
+<span class="ansigreen">   1163</span>         self<span class="ansiyellow">.</span>_save_seq <span class="ansiyellow">=</span> <span class="ansiyellow">[</span><span class="ansiyellow">]</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1164</span> <span class="ansiyellow"></span>
+<span class="ansigreen">-&gt; 1165</span><span class="ansiyellow">         </span>TimedAnimation<span class="ansiyellow">.</span>__init__<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> fig<span class="ansiyellow">,</span> <span class="ansiyellow">**</span>kwargs<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1166</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   1167</span>         <span class="ansired"># Need to reset the saved seq, since right now it will contain data</span><span class="ansiyellow"></span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">__init__</span><span class="ansiblue">(self, fig, interval, repeat_delay, repeat, event_source, *args, **kwargs)</span>
+<span class="ansigreen">   1007</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   1008</span>         Animation.__init__(self, fig, event_source=event_source,
+<span class="ansigreen">-&gt; 1009</span><span class="ansiyellow">                            *args, **kwargs)
+</span><span class="ansigreen">   1010</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   1011</span>     <span class="ansigreen">def</span> _step<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> <span class="ansiyellow">*</span>args<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">__init__</span><span class="ansiblue">(self, fig, event_source, blit)</span>
+<span class="ansigreen">    634</span>                                                       self._stop)
+<span class="ansigreen">    635</span>         <span class="ansigreen">if</span> self<span class="ansiyellow">.</span>_blit<span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">--&gt; 636</span><span class="ansiyellow">             </span>self<span class="ansiyellow">.</span>_setup_blit<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    637</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    638</span>     <span class="ansigreen">def</span> _start<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> <span class="ansiyellow">*</span>args<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">_setup_blit</span><span class="ansiblue">(self)</span>
+<span class="ansigreen">    905</span>         self._resize_id = self._fig.canvas.mpl_connect(&apos;resize_event&apos;,
+<span class="ansigreen">    906</span>                                                        self._handle_resize)
+<span class="ansigreen">--&gt; 907</span><span class="ansiyellow">         </span>self<span class="ansiyellow">.</span>_post_draw<span class="ansiyellow">(</span><span class="ansigreen">None</span><span class="ansiyellow">,</span> self<span class="ansiyellow">.</span>_blit<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    908</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    909</span>     <span class="ansigreen">def</span> _handle_resize<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> <span class="ansiyellow">*</span>args<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">_post_draw</span><span class="ansiblue">(self, framedata, blit)</span>
+<span class="ansigreen">    870</span>             self<span class="ansiyellow">.</span>_blit_draw<span class="ansiyellow">(</span>self<span class="ansiyellow">.</span>_drawn_artists<span class="ansiyellow">,</span> self<span class="ansiyellow">.</span>_blit_cache<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    871</span>         <span class="ansigreen">else</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">--&gt; 872</span><span class="ansiyellow">             </span>self<span class="ansiyellow">.</span>_fig<span class="ansiyellow">.</span>canvas<span class="ansiyellow">.</span>draw_idle<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    873</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    874</span>     <span class="ansired"># The rest of the code in this class is to facilitate easy blitting</span><span class="ansiyellow"></span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/backend_bases.py</span> in <span class="ansicyan">draw_idle</span><span class="ansiblue">(self, *args, **kwargs)</span>
+<span class="ansigreen">   2024</span>         <span class="ansigreen">if</span> <span class="ansigreen">not</span> self<span class="ansiyellow">.</span>_is_idle_drawing<span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">   2025</span>             <span class="ansigreen">with</span> self<span class="ansiyellow">.</span>_idle_draw_cntx<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">-&gt; 2026</span><span class="ansiyellow">                 </span>self<span class="ansiyellow">.</span>draw<span class="ansiyellow">(</span><span class="ansiyellow">*</span>args<span class="ansiyellow">,</span> <span class="ansiyellow">**</span>kwargs<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">   2027</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   2028</span>     <span class="ansigreen">def</span> draw_cursor<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> event<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/backends/backend_agg.py</span> in <span class="ansicyan">draw</span><span class="ansiblue">(self)</span>
+<span class="ansigreen">    472</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    473</span>         <span class="ansigreen">try</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">--&gt; 474</span><span class="ansiyellow">             </span>self<span class="ansiyellow">.</span>figure<span class="ansiyellow">.</span>draw<span class="ansiyellow">(</span>self<span class="ansiyellow">.</span>renderer<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    475</span>         <span class="ansigreen">finally</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">    476</span>             RendererAgg<span class="ansiyellow">.</span>lock<span class="ansiyellow">.</span>release<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/artist.py</span> in <span class="ansicyan">draw_wrapper</span><span class="ansiblue">(artist, renderer, *args, **kwargs)</span>
+<span class="ansigreen">     59</span>     <span class="ansigreen">def</span> draw_wrapper<span class="ansiyellow">(</span>artist<span class="ansiyellow">,</span> renderer<span class="ansiyellow">,</span> <span class="ansiyellow">*</span>args<span class="ansiyellow">,</span> <span class="ansiyellow">**</span>kwargs<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">     60</span>         before<span class="ansiyellow">(</span>artist<span class="ansiyellow">,</span> renderer<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">---&gt; 61</span><span class="ansiyellow">         </span>draw<span class="ansiyellow">(</span>artist<span class="ansiyellow">,</span> renderer<span class="ansiyellow">,</span> <span class="ansiyellow">*</span>args<span class="ansiyellow">,</span> <span class="ansiyellow">**</span>kwargs<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">     62</span>         after<span class="ansiyellow">(</span>artist<span class="ansiyellow">,</span> renderer<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">     63</span> <span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/figure.py</span> in <span class="ansicyan">draw</span><span class="ansiblue">(self, renderer)</span>
+<span class="ansigreen">   1163</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   1164</span>         self<span class="ansiyellow">.</span>_cachedRenderer <span class="ansiyellow">=</span> renderer<span class="ansiyellow"></span>
+<span class="ansigreen">-&gt; 1165</span><span class="ansiyellow">         </span>self<span class="ansiyellow">.</span>canvas<span class="ansiyellow">.</span>draw_event<span class="ansiyellow">(</span>renderer<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1166</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   1167</span>     <span class="ansigreen">def</span> draw_artist<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> a<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/backend_bases.py</span> in <span class="ansicyan">draw_event</span><span class="ansiblue">(self, renderer)</span>
+<span class="ansigreen">   1807</span>         s <span class="ansiyellow">=</span> <span class="ansiblue">&apos;draw_event&apos;</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1808</span>         event <span class="ansiyellow">=</span> DrawEvent<span class="ansiyellow">(</span>s<span class="ansiyellow">,</span> self<span class="ansiyellow">,</span> renderer<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">-&gt; 1809</span><span class="ansiyellow">         </span>self<span class="ansiyellow">.</span>callbacks<span class="ansiyellow">.</span>process<span class="ansiyellow">(</span>s<span class="ansiyellow">,</span> event<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1810</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   1811</span>     <span class="ansigreen">def</span> resize_event<span class="ansiyellow">(</span>self<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/cbook.py</span> in <span class="ansicyan">process</span><span class="ansiblue">(self, s, *args, **kwargs)</span>
+<span class="ansigreen">    561</span>             <span class="ansigreen">for</span> cid<span class="ansiyellow">,</span> proxy <span class="ansigreen">in</span> list<span class="ansiyellow">(</span>six<span class="ansiyellow">.</span>iteritems<span class="ansiyellow">(</span>self<span class="ansiyellow">.</span>callbacks<span class="ansiyellow">[</span>s<span class="ansiyellow">]</span><span class="ansiyellow">)</span><span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">    562</span>                 <span class="ansigreen">try</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">--&gt; 563</span><span class="ansiyellow">                     </span>proxy<span class="ansiyellow">(</span><span class="ansiyellow">*</span>args<span class="ansiyellow">,</span> <span class="ansiyellow">**</span>kwargs<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    564</span>                 <span class="ansigreen">except</span> ReferenceError<span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">    565</span>                     self<span class="ansiyellow">.</span>_remove_proxy<span class="ansiyellow">(</span>proxy<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/cbook.py</span> in <span class="ansicyan">__call__</span><span class="ansiblue">(self, *args, **kwargs)</span>
+<span class="ansigreen">    428</span>             mtd <span class="ansiyellow">=</span> self<span class="ansiyellow">.</span>func<span class="ansiyellow"></span>
+<span class="ansigreen">    429</span>         <span class="ansired"># invoke the callable and return the result</span><span class="ansiyellow"></span><span class="ansiyellow"></span>
+<span class="ansigreen">--&gt; 430</span><span class="ansiyellow">         </span><span class="ansigreen">return</span> mtd<span class="ansiyellow">(</span><span class="ansiyellow">*</span>args<span class="ansiyellow">,</span> <span class="ansiyellow">**</span>kwargs<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    431</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    432</span>     <span class="ansigreen">def</span> __eq__<span class="ansiyellow">(</span>self<span class="ansiyellow">,</span> other<span class="ansiyellow">)</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">_start</span><span class="ansiblue">(self, *args)</span>
+<span class="ansigreen">    646</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    647</span>         <span class="ansired"># Now do any initial draw</span><span class="ansiyellow"></span><span class="ansiyellow"></span>
+<span class="ansigreen">--&gt; 648</span><span class="ansiyellow">         </span>self<span class="ansiyellow">.</span>_init_draw<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">    649</span> <span class="ansiyellow"></span>
+<span class="ansigreen">    650</span>         <span class="ansired"># Add our callback for stepping the animation and</span><span class="ansiyellow"></span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">_init_draw</span><span class="ansiblue">(self)</span>
+<span class="ansigreen">   1191</span>         <span class="ansired"># artists.</span><span class="ansiyellow"></span><span class="ansiyellow"></span>
+<span class="ansigreen">   1192</span>         <span class="ansigreen">if</span> self<span class="ansiyellow">.</span>_init_func <span class="ansigreen">is</span> <span class="ansigreen">None</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">-&gt; 1193</span><span class="ansiyellow">             </span>self<span class="ansiyellow">.</span>_draw_frame<span class="ansiyellow">(</span>next<span class="ansiyellow">(</span>self<span class="ansiyellow">.</span>new_frame_seq<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow">)</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1194</span> <span class="ansiyellow"></span>
+<span class="ansigreen">   1195</span>         <span class="ansigreen">else</span><span class="ansiyellow">:</span><span class="ansiyellow"></span>
+
+<span class="ansigreen">/home/travis/miniconda2/envs/build-pages/lib/python3.5/site-packages/matplotlib/animation.py</span> in <span class="ansicyan">_draw_frame</span><span class="ansiblue">(self, framedata)</span>
+<span class="ansigreen">   1212</span>         self<span class="ansiyellow">.</span>_drawn_artists <span class="ansiyellow">=</span> self<span class="ansiyellow">.</span>_func<span class="ansiyellow">(</span>framedata<span class="ansiyellow">,</span> <span class="ansiyellow">*</span>self<span class="ansiyellow">.</span>_args<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1213</span>         <span class="ansigreen">if</span> self<span class="ansiyellow">.</span>_blit<span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">-&gt; 1214</span><span class="ansiyellow">             </span><span class="ansigreen">for</span> a <span class="ansigreen">in</span> self<span class="ansiyellow">.</span>_drawn_artists<span class="ansiyellow">:</span><span class="ansiyellow"></span>
+<span class="ansigreen">   1215</span>                 a<span class="ansiyellow">.</span>set_animated<span class="ansiyellow">(</span>self<span class="ansiyellow">.</span>_blit<span class="ansiyellow">)</span><span class="ansiyellow"></span>
+
+<span class="ansired">TypeError</span>: &apos;NoneType&apos; object is not iterable</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Testing-documentation">Testing documentation<a class="anchor-link" href="#Testing-documentation">&#182;</a></h2><p>Documentation is universally accepted as a fundamental part of software
+development \cite{Forward2002, Letherbridge2003}. However, documentation should
+be thought of as a potential source for bugs as much as the source code itself.
+It is very easy to change a feature in the course code, very and adjust the
+testing framework but forget to update the documentation for a feature change.</p>
+<p>Thus, it is important to incorporate a test of the documentation. Python has a
+framework entitled <code>doctest</code> which will parse any file for <code>&gt;&gt;&gt;</code> and <code>...</code> and
+will run the associated code checking that the asserted output is obtained.
+This is how documentation could be written for the <code>divisible_by_11</code> function written earlier:</p>
+<div class="highlight"><pre><span></span><span class="n">When</span> <span class="n">running</span> <span class="n">our</span> <span class="n">function</span> <span class="n">on</span> <span class="n">the</span> <span class="n">first</span> <span class="mi">10</span> <span class="n">numbers</span> <span class="n">divisible</span> <span class="n">by</span> <span class="mi">11</span> <span class="n">we</span> <span class="n">get</span><span class="p">:</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">divisible_by_11</span><span class="p">(</span><span class="mi">11</span> <span class="o">*</span> <span class="n">k</span><span class="p">))</span>
+<span class="bp">True</span>
+<span class="bp">True</span>
+<span class="bp">True</span>
+<span class="bp">True</span>
+<span class="bp">True</span>
+<span class="bp">True</span>
+<span class="bp">True</span>
+<span class="bp">True</span>
+<span class="bp">True</span>
+</pre></div>
+<p>To run the above (assuming it's saved in a <code>doc.rst</code> file) we use: <code>python -m
+doctest cod.rst</code>. Doc tests can be incorporated with any of the previously
+mentioned paradigms.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Conclusions">Conclusions<a class="anchor-link" href="#Conclusions">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span> 
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
